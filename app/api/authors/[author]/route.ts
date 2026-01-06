@@ -3,6 +3,9 @@ import connectDB from '@/lib/mongodb'
 import User from '@/schemas/User'
 import Post from '@/schemas/Post'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 // Get a single author by slug
 export async function GET(
   request: NextRequest,

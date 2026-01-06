@@ -7,11 +7,12 @@ import PostTags from '@/components/PostTags'
 import SocialShareButtons from '@/components/SocialShareButtons'
 import CommentsSection from '@/components/CommentsSection'
 import RelatedPosts from '@/components/RelatedPosts'
+import FeaturedVideo from '@/components/FeaturedVideo'
+import AutoPlayVideo from '@/components/AutoPlayVideo'
+import { serverFetch } from '@/lib/serverFetch'
 
 // Force dynamic rendering to avoid build-time database connection errors
 export const dynamic = 'force-dynamic'
-import FeaturedVideo from '@/components/FeaturedVideo'
-import AutoPlayVideo from '@/components/AutoPlayVideo'
 
 interface Post {
   id: string
@@ -36,20 +37,17 @@ interface Post {
 
 async function getPost(slug: string): Promise<Post | null> {
   try {
-    // Use absolute URL for server-side fetching
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const response = await fetch(`${baseUrl}/api/posts/${slug}`, {
-      cache: 'no-store', // Always fetch fresh data
-    })
-    
+    const response = await serverFetch(`/api/posts/${slug}`)
+
     if (!response.ok) {
+      console.error(`Failed to fetch post: ${response.status} ${response.statusText}`)
       return null
     }
-    
+
     const data = await response.json()
     return data.post
-  } catch (error) {
-    console.error('Error fetching post:', error)
+  } catch (error: any) {
+    console.error('Error fetching post:', error.message || error)
     return null
   }
 }

@@ -3,6 +3,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import PostCard from '@/components/PostCard'
 import AuthorProfile from '@/components/AuthorProfile'
+import { serverFetch } from '@/lib/serverFetch'
 
 // Force dynamic rendering to avoid build-time database connection errors
 export const dynamic = 'force-dynamic'
@@ -36,22 +37,19 @@ interface Author {
 
 async function getAuthorData(authorSlug: string): Promise<{ author: Author | null; posts: Post[] }> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const response = await fetch(`${baseUrl}/api/authors/${authorSlug}`, {
-      cache: 'no-store',
-    })
-    
+    const response = await serverFetch(`/api/authors/${authorSlug}`)
+
     if (!response.ok) {
       return { author: null, posts: [] }
     }
-    
+
     const data = await response.json()
     return {
       author: data.author || null,
       posts: data.posts || [],
     }
-  } catch (error) {
-    console.error('Error fetching author:', error)
+  } catch (error: any) {
+    console.error('Error fetching author:', error.message || error)
     return { author: null, posts: [] }
   }
 }
@@ -61,8 +59,9 @@ function formatDate(dateString: string) {
   return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-export default async function AuthorPage({ params }: { params: { author: string } }) {
-  const { author, posts } = await getAuthorData(params.author)
+export default async function AuthorPage({ params }: { params: Promise<{ author: string }> | { author: string } }) {
+  const resolvedParams = 'then' in params ? await params : params
+  const { author, posts } = await getAuthorData(resolvedParams.author)
 
   if (!author) {
     notFound()

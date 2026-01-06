@@ -3,6 +3,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getOptimizedAvatarUrl } from '@/lib/avatarUtils'
+import { serverFetch } from '@/lib/serverFetch'
 
 // Force dynamic rendering to avoid build-time database connection errors
 export const dynamic = 'force-dynamic'
@@ -20,19 +21,16 @@ interface Author {
 
 async function getAuthors(): Promise<Author[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const response = await fetch(`${baseUrl}/api/authors`, {
-      cache: 'no-store',
-    })
-    
+    const response = await serverFetch('/api/authors')
+
     if (!response.ok) {
       return []
     }
-    
+
     const data = await response.json()
     return data.authors || []
-  } catch (error) {
-    console.error('Error fetching authors:', error)
+  } catch (error: any) {
+    console.error('Error fetching authors:', error.message || error)
     return []
   }
 }

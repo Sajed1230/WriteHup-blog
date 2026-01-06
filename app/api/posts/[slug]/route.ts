@@ -5,15 +5,19 @@ import User from '@/schemas/User'
 import Category from '@/schemas/Category'
 import Tag from '@/schemas/Tag'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 // Get a single post by slug (public API)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> | { slug: string } }
 ) {
   try {
     await connectDB()
 
-    const post = await Post.findOne({ slug: params.slug, status: 'published' })
+    const resolvedParams = 'then' in params ? await params : params
+    const post = await Post.findOne({ slug: resolvedParams.slug, status: 'published' })
       .populate('author', 'name email avatar bio')
       .populate('category', 'name slug')
       .populate('tags', 'name slug')

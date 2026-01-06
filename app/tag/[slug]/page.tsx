@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import CategoryPostsClient from '@/components/CategoryPostsClient'
+import { serverFetch } from '@/lib/serverFetch'
 
 // Force dynamic rendering to avoid build-time database connection errors
 export const dynamic = 'force-dynamic'
@@ -35,46 +36,40 @@ interface Post {
 
 async function getTag(slug: string): Promise<Tag | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const response = await fetch(`${baseUrl}/api/tags/${slug}`, {
-      cache: 'no-store',
-    })
-    
+    const response = await serverFetch(`/api/tags/${slug}`)
+
     if (!response.ok) {
       return null
     }
-    
+
     const data = await response.json()
     return data.tag
-  } catch (error) {
-    console.error('Error fetching tag:', error)
+  } catch (error: any) {
+    console.error('Error fetching tag:', error.message || error)
     return null
   }
 }
 
 async function getInitialPosts(slug: string): Promise<{ posts: Post[]; total: number }> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     const queryParams = new URLSearchParams({
       tag: slug,
       limit: '9',
       skip: '0',
     })
-    const response = await fetch(`${baseUrl}/api/posts/public?${queryParams}`, {
-      cache: 'no-store',
-    })
-    
+    const response = await serverFetch(`/api/posts/public?${queryParams}`)
+
     if (!response.ok) {
       return { posts: [], total: 0 }
     }
-    
+
     const data = await response.json()
     return {
       posts: data.posts || [],
       total: data.total || 0,
     }
-  } catch (error) {
-    console.error('Error fetching posts:', error)
+  } catch (error: any) {
+    console.error('Error fetching posts:', error.message || error)
     return { posts: [], total: 0 }
   }
 }

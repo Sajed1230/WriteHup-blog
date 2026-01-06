@@ -2,14 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Category from '@/schemas/Category'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> | { slug: string } }
 ) {
   try {
     await connectDB()
 
-    const category = await Category.findOne({ slug: params.slug })
+    const resolvedParams = 'then' in params ? await params : params
+    const category = await Category.findOne({ slug: resolvedParams.slug })
 
     if (!category) {
       return NextResponse.json(
