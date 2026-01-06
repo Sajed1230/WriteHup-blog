@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useMemo } from 'react'
+import useSWR from 'swr'
 import PostCard from './PostCard'
 
 interface Post {
@@ -18,30 +19,21 @@ interface Post {
 }
 
 export default function TrendingPosts() {
-  const [trendingPosts, setTrendingPosts] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchTrendingPosts()
-  }, [])
-
-  const fetchTrendingPosts = async () => {
-    try {
-      // Fetch posts sorted by popularity (views + likes)
-      const response = await fetch('/api/posts/public?limit=3&status=published')
-      if (response.ok) {
-        const data = await response.json()
-        // Sort by views + likes (popularity)
-        const sorted = (data.posts || [])
-          .sort((a: Post, b: Post) => (b.views + b.likes) - (a.views + a.likes))
-          .slice(0, 3)
-        setTrendingPosts(sorted)
-      }
-    } catch (error) {
-      console.error('Error fetching trending posts:', error)
-    } finally {
-      setLoading(false)
-    }
+  // SWR will cache this data and only refetch when needed
+  const { data, isLoading, error } = useSWR('/api/posts/public?limit=3&status=published')
+  
+  // Sort by views + likes (popularity) and take top 3
+  const trendingPosts = useMemo(() => {
+    if (!data?.posts) return []
+    return (data.posts as Post[])
+      .sort((a: Post, b: Post) => (b.views + b.likes) - (a.views + a.likes))
+      .slice(0, 3)
+  }, [data?.posts])
+  
+  const loading = isLoading
+  
+  if (error) {
+    console.error('Error fetching trending posts:', error)
   }
 
   const formatDate = (dateString: string) => {

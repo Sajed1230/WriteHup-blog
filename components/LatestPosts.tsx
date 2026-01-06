@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react'
+import { useMemo, memo } from 'react'
+import useSWR from 'swr'
 import PostCard from './PostCard'
 
 interface Post {
@@ -16,31 +17,20 @@ interface Post {
 }
 
 const LatestPosts = memo(function LatestPosts() {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
+  // SWR will cache this data and only refetch when needed
+  const { data, isLoading, error } = useSWR('/api/posts/public?limit=8')
+  
+  const posts: Post[] = data?.posts || []
+  const loading = isLoading
+  
+  if (error) {
+    console.error('Error fetching posts:', error)
+  }
 
-  const fetchPosts = useCallback(async () => {
-    try {
-      const response = await fetch('/api/posts/public?limit=8')
-      if (response.ok) {
-        const data = await response.json()
-        setPosts(data.posts || [])
-      }
-    } catch (error) {
-      console.error('Error fetching posts:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchPosts()
-  }, [fetchPosts])
-
-  const formatDate = useCallback((dateString: string) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
-  }, [])
+  }
 
   const formattedPosts = useMemo(() => {
     return posts.map((post, index) => ({

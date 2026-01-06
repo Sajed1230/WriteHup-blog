@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import useSWR from 'swr'
 import Link from 'next/link'
 
 interface Post {
@@ -16,28 +16,14 @@ interface Post {
 }
 
 export default function FeaturedPost() {
-  const [post, setPost] = useState<Post | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchFeaturedPost()
-  }, [])
-
-  const fetchFeaturedPost = async () => {
-    try {
-      // Fetch the latest published post
-      const response = await fetch('/api/posts/public?limit=1&status=published')
-      if (response.ok) {
-        const data = await response.json()
-        if (data.posts && data.posts.length > 0) {
-          setPost(data.posts[0])
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching featured post:', error)
-    } finally {
-      setLoading(false)
-    }
+  // SWR will cache this data and only refetch when needed
+  const { data, isLoading, error } = useSWR('/api/posts/public?limit=1&status=published')
+  
+  const post: Post | null = data?.posts?.[0] || null
+  const loading = isLoading
+  
+  if (error) {
+    console.error('Error fetching featured post:', error)
   }
 
   if (loading) {
