@@ -6,6 +6,9 @@ import Comment from '@/schemas/Comment'
 import { verifyToken } from '@/lib/auth'
 import { deleteImage } from '@/lib/cloudinary'
 
+// Force dynamic rendering (uses cookies for authentication)
+export const dynamic = 'force-dynamic'
+
 export async function DELETE(request: NextRequest) {
   try {
     // Get token from cookie

@@ -4,6 +4,9 @@ import User from '@/schemas/User'
 import { verifyToken } from '@/lib/auth'
 import mongoose from 'mongoose'
 
+// Force dynamic rendering (uses cookies for authentication)
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     // Get token from cookie

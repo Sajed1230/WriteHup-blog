@@ -5,6 +5,9 @@ import Comment from '@/schemas/Comment'
 import User from '@/schemas/User'
 import { verifyToken } from '@/lib/auth'
 
+// Force dynamic rendering (uses cookies for authentication)
+export const dynamic = 'force-dynamic'
+
 // Get pending comments for author's posts
 export async function GET(request: NextRequest) {
   try {

@@ -4,6 +4,9 @@ import Post from '@/schemas/Post'
 import Comment from '@/schemas/Comment'
 import { verifyToken } from '@/lib/auth'
 
+// Force dynamic rendering (POST uses cookies for authentication)
+export const dynamic = 'force-dynamic'
+
 // Get comments for a post
 export async function GET(
   request: NextRequest,

@@ -5,6 +5,9 @@ import Category from '@/schemas/Category'
 import Tag from '@/schemas/Tag'
 import User from '@/schemas/User'
 
+// Force dynamic rendering (uses searchParams for query parameters)
+export const dynamic = 'force-dynamic'
+
 // Get all published posts (public API - no authentication required)
 export async function GET(request: NextRequest) {
   try {

@@ -7,6 +7,9 @@ import Tag from '@/schemas/Tag'
 import { verifyToken } from '@/lib/auth'
 import { uploadImage, uploadVideo } from '@/lib/cloudinary'
 
+// Force dynamic rendering (uses cookies for authentication)
+export const dynamic = 'force-dynamic'
+
 // Create a new post
 export async function POST(request: NextRequest) {
   try {

@@ -5,6 +5,9 @@ import Comment from '@/schemas/Comment'
 import User from '@/schemas/User'
 import { verifyToken } from '@/lib/auth'
 
+// Force dynamic rendering (uses cookies for authentication)
+export const dynamic = 'force-dynamic'
+
 // Approve or reject a comment
 export async function PATCH(
   request: NextRequest,

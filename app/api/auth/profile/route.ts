@@ -3,6 +3,9 @@ import connectDB from '@/lib/mongodb'
 import User from '@/schemas/User'
 import { verifyToken } from '@/lib/auth'
 
+// Force dynamic rendering (uses cookies for authentication)
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Get token from cookie or Authorization header
